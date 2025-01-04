@@ -65,7 +65,23 @@
             font-size: 18px;
             color: #333;
         }
-    
+
+        /* Spinning loader animation */
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Media Queries for smaller devices */
         @media (max-width: 768px) {
             h3 {
@@ -109,7 +125,6 @@
             }
         }
     </style>
-    
 </head>
 <body>
 
@@ -142,7 +157,8 @@
             <option value="Hospitality">Hospitality</option>
         </select>
 
-        <div id="loader">Loading...</div>
+        <!-- Loader -->
+        <div id="loader" class="spinner"></div>
 
         <div id="resultTable"></div>
     </div>
@@ -190,42 +206,22 @@
             const table = document.getElementById('resultTable');
             table.innerHTML = ''; // Clear the table before adding new data
 
-            const header = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Father Name</th>
-                            <th>CNIC</th>
-                            <th>District</th>
-                            <th>Field</th>
-                            <th>MCQs Score</th>
-                            <th>Essay Score</th>
-                            <th>Final Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            table.innerHTML += header;
-
             // Populate table rows
             data.forEach(row => {
                 const rowHTML = `
-                    <tr>
-                        <td>${row[0]}</td>
-                        <td>${row[1]}</td>
-                        <td>${row[2]}</td>
-                        <td>${row[3]}</td>
-                        <td>${row[4]}</td>
-                        <td>${row[5]}</td>
-                        <td>${row[6]}</td>
-                        <td>${row[7]}</td>
-                    </tr> <br>
+                    <tr><hr>
+                        <td>${row[0]}</td><span> -- </span>
+                        <td>${row[1]}</td><span> -- </span>
+                        <td>${row[2]}</td><span> -- </span>
+                        <td>${row[3]}</td><span> -- </span>
+                        <td>${row[4]}</td><span> -- </span>
+                        <td>${row[5]}</td><span> -- </span>
+                        <td>${row[6]}</td><span> -- </span>
+                        <td>${row[7]}</td><span> -- </span>
+                    </tr><hr>
                 `;
                 table.innerHTML += rowHTML;
             });
-
-            table.innerHTML += '</tbody></table>';
         }
 
         // Function to filter data based on selected district and field
