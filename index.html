@@ -225,7 +225,7 @@
 
         // Function to update overall statistics
         function updateStatistics(data, updateFemales = true) {
-            const totalStudents = data.length;
+            const totalStudents = data.length-1;
             const passCount = data.filter(row => row[7] >= 50).length; // Assuming column 7 is the final score
             const failCount = totalStudents - passCount;
 
