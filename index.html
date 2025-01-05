@@ -273,6 +273,7 @@
                 .then(response => response.json())
                 .then(data => {
                     studentData = data;
+                    console.log('Fetched data:', studentData[studentData.length-1][8]); 
                     populateTable(studentData); // Populate table with all data
                     updateStatistics(studentData); // Update overall statistics
                     populateDistricts(studentData); // Populate district dropdown
@@ -289,7 +290,7 @@
 
         // Function to update overall statistics
         function updateStatistics(data, updateFemales = true) {
-            const totalStudents = data.length-1;
+            const totalStudents = data.length;
             const passCount = data.filter(row => row[7] >= 50).length; // Assuming column 7 is the final score
             const failCount = totalStudents - passCount;
 
@@ -300,9 +301,8 @@
 
             // Update Total Females and Pass Females only when updateFemales is true
             if (updateFemales) {
-                const lastRow = data[data.length - 1]; // Assuming the last row contains female statistics
-                passFemales = lastRow[1]; // 'Pass Female' count
-                totalFemales = lastRow[2]; // 'Total Female' count
+                passFemales = studentData[studentData.length-1][9]; // 'Pass Female' count
+                totalFemales = studentData[studentData.length-1][8] // 'Total Female' count
 
                 document.getElementById('Pass-Females').textContent = passFemales;
                 document.getElementById('Total-Females').textContent = totalFemales;
