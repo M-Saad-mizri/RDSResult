@@ -11,62 +11,82 @@
             padding: 0;
             background-color: #f4f4f9;
         }
-    
+
         h3 {
             text-align: center;
-            font-size: 1.2em; /* Adjusted for responsiveness */
-            margin-top: 20px;
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #333;
         }
-    
+
         .container {
-            width: 90%; /* Updated for better responsiveness */
-            max-width: 1200px; /* Maximum width for larger screens */
+            width: 90%;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
-    
+
         #statistics {
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid #ddd;
         }
-    
+
+        #statistics p {
+            margin: 5px 0;
+            font-size: 1em;
+            color: #555;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 20px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
-    
+
         table th, table td {
-            padding: 12px; /* Increased padding for better readability */
+            padding: 12px;
             border: 1px solid #ddd;
             text-align: left;
-            font-size: 0.9em; /* Adjusted font size for better visibility on smaller screens */
+            font-size: 0.9em;
         }
-    
+
         table th {
             background-color: #4CAF50;
             color: white;
         }
-    
-        select {
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 1em; /* Responsive font size */
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
-    
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Spinning loader animation */
         #loader {
             text-align: center;
-            display: none;
+            visibility: hidden;
             margin-top: 20px;
             font-size: 18px;
             color: #333;
         }
 
-        /* Spinning loader animation */
+        #loader.show {
+            visibility: visible;
+        }
+
         .spinner {
             border: 8px solid #f3f3f3;
             border-top: 8px solid #4CAF50;
@@ -85,52 +105,53 @@
         /* Media Queries for smaller devices */
         @media (max-width: 768px) {
             h3 {
-                font-size: 1em; /* Adjust for smaller screens */
+                font-size: 1.2em;
             }
-    
+
             .container {
                 width: 95%;
                 padding: 15px;
             }
-    
+
             table th, table td {
                 padding: 10px;
-                font-size: 0.85em; /* Smaller font size for mobile devices */
+                font-size: 0.85em;
             }
-    
+
             select {
-                width: 100%; /* Make dropdown take full width */
-                font-size: 1em;
+                width: 95%;
             }
         }
-    
+
         @media (max-width: 480px) {
             h3 {
-                font-size: 0.9em;
+                font-size: 1em;
             }
-    
+
             .container {
-                width: 100%;
+                width: 90%;
                 padding: 10px;
             }
-    
+
             table th, table td {
                 padding: 8px;
-                font-size: 0.75em; /* Smaller font size for mobile phones */
+                font-size: 0.75em;
             }
-    
+
             select {
-                width: 100%; /* Ensure full-width dropdown on small devices */
+                width: 95%;
                 font-size: 0.9em;
             }
+
+            #downloadbtn {width: 95%;}
         }
     </style>
 </head>
 <body>
 
     <h3>
-        CHIEF MINISTER SKILL DEVELOPMENT AND OVERSEAS EMPLOYMENT PROGRAM | <br>
-        RECOMMENDED CANDIDATES FOR IT / HEALTH CARE / HOSPITALITY SECTOR AT EU / GERMANY BY <br>
+        CHIEF MINISTER SKILL DEVELOPMENT AND OVERSEAS EMPLOYMENT PROGRAM<br>
+        RECOMMENDED CANDIDATES FOR <br> IT / HEALTH CARE / HOSPITALITY SECTOR AT EU / GERMANY <br>BY 
         RADIUS CONSULTANT
     </h3>
 
@@ -138,29 +159,38 @@
         <h2>Overall Statistics</h2>
         <div id="statistics">
             <p><strong>Total Students:</strong> <span id="totalStudents">0</span></p>
-            <p><strong>Pass (50 and above):</strong> <span id="passCount">0</span></p>
-            <p><strong>Fail (below 50):</strong> <span id="failCount">0</span></p>
+            <p><strong>Pass:</strong> <span id="passCount">0</span></p>
+            <p><strong>Fail:</strong> <span id="failCount">0</span></p>
+            <p><strong>Total Females:</strong> <span id="Total-Females">0</span></p>
+            <p><strong>Fail Females:</strong> <span id="Pass-Females">0</span></p>
         </div>
+        <a href="overall Result final.xlsx" download="overall Result final.xlsx">
+            <button id="downloadbtn" style="padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Download Final Result (Excel)
+            </button>
+        </a>
+        
+        <h3><img width="20" height="20" src="https://img.icons8.com/fluency/48/filter--v1.png" alt="filter--v1"/>District and Field</h3>
 
-        <h1>Filter Data by District and Field</h1>
-
-        <label for="district">Select District:</label>
-        <select id="district" onchange="filterData()">
+        <select style="margin-bottom: 10px;" id="district" onchange="filterData()">
             <option value="">All Districts</option>
         </select>
 
-        <label for="field">Select Field:</label>
         <select id="field" onchange="filterData()">
             <option value="">All Fields</option>
             <option value="IT">IT</option>
-            <option value="Health Care">Health Care</option>
+            <option value="Health">Health</option>
             <option value="Hospitality">Hospitality</option>
         </select>
 
         <!-- Loader -->
         <div id="loader" class="spinner"></div>
 
-        <div id="resultTable"></div>
+        <div class="table-container">
+            <table id="resultTable" border="1" style="width: 100%; text-align: left;">
+                <!-- Table will be dynamically populated -->
+            </table>
+        </div>
     </div>
 
     <script>
@@ -173,7 +203,7 @@
 
         // Function to fetch data from API
         function fetchData() {
-            document.getElementById('loader').style.display = 'block'; // Show loader
+            document.getElementById('loader').classList.add('show'); // Show loader
 
             fetch('https://script.google.com/macros/s/AKfycbwIOjxTdxzCgqNYfPhi4o3rYLDijtxnUWw4jhnZAZ3tFZTkvNZ5KYd8dG39KMmmMmue/exec')
                 .then(response => response.json())
@@ -182,69 +212,80 @@
                     populateTable(studentData); // Populate table with all data
                     updateStatistics(studentData); // Update overall statistics
                     populateDistricts(studentData); // Populate district dropdown
-                    document.getElementById('loader').style.display = 'none'; // Hide loader
+                    document.getElementById('loader').classList.remove('show'); // Hide loader
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    document.getElementById('loader').style.display = 'none'; // Hide loader
+                    document.getElementById('loader').classList.remove('show'); // Hide loader
                 });
         }
 
-        // Function to update statistics
-        function updateStatistics(data) {
+        let totalFemales = 0;
+        let passFemales = 0;
+
+        // Function to update overall statistics
+        function updateStatistics(data, updateFemales = true) {
             const totalStudents = data.length;
             const passCount = data.filter(row => row[7] >= 50).length; // Assuming column 7 is the final score
             const failCount = totalStudents - passCount;
 
+            // Update main statistics
             document.getElementById('totalStudents').textContent = totalStudents;
             document.getElementById('passCount').textContent = passCount;
             document.getElementById('failCount').textContent = failCount;
+
+            // Update Total Females and Pass Females only when updateFemales is true
+            if (updateFemales) {
+                const lastRow = data[data.length - 1]; // Assuming the last row contains female statistics
+                passFemales = lastRow[1]; // 'Pass Female' count
+                totalFemales = lastRow[2]; // 'Total Female' count
+
+                document.getElementById('Pass-Females').textContent = passFemales;
+                document.getElementById('Total-Females').textContent = totalFemales;
+            }
         }
 
-        // Function to populate the result table
+        // Function to populate the table with API data
         function populateTable(data) {
             const table = document.getElementById('resultTable');
-            table.innerHTML = ''; // Clear the table before adding new data
+            table.innerHTML = ''; // Clear existing table data
 
-            // Populate table rows
+            // Add headers
+            const headers = `
+                <tr>
+                    <th>Name</th>
+                    <th>Father Name</th>
+                    <th>NIC</th>
+                    <th>District</th>
+                    <th>Field</th>
+                    <th>MCQs Marks</th>
+                    <th>Essay Marks</th>
+                    <th>Total Marks</th>
+                </tr>
+            `;
+            table.innerHTML = headers;
+
+            // Populate rows
             data.forEach(row => {
                 const rowHTML = `
-                    <tr><hr>
-                        <td>${row[0]}</td><span> -- </span>
-                        <td>${row[1]}</td><span> -- </span>
-                        <td>${row[2]}</td><span> -- </span>
-                        <td>${row[3]}</td><span> -- </span>
-                        <td>${row[4]}</td><span> -- </span>
-                        <td>${row[5]}</td><span> -- </span>
-                        <td>${row[6]}</td><span> -- </span>
-                        <td>${row[7]}</td><span> -- </span>
-                    </tr><hr>
+                    <tr>
+                        <td>${row[0]}</td>
+                        <td>${row[1]}</td>
+                        <td>${row[2]}</td>
+                        <td>${row[3]}</td>
+                        <td>${row[4]}</td>
+                        <td>${row[5]}</td>
+                        <td>${row[6]}</td>
+                        <td>${row[7]}</td>
+                    </tr>
                 `;
                 table.innerHTML += rowHTML;
             });
         }
 
-        // Function to filter data based on selected district and field
-        function filterData() {
-            const district = document.getElementById('district').value;
-            const field = document.getElementById('field').value;
-            const filteredData = studentData.filter(row => {
-                const rowDistrict = row[3] ? row[3].toString().trim().toLowerCase() : '';
-                const rowField = row[4] ? row[4].toString().trim().toLowerCase() : '';
-
-                let districtMatch = district ? rowDistrict === district.toLowerCase() : true;
-                let fieldMatch = field ? rowField.includes(field.toLowerCase()) : true;
-
-                return districtMatch && fieldMatch;
-            });
-
-            populateTable(filteredData); // Update the table with filtered data
-            updateStatistics(filteredData); // Update statistics based on filtered data
-        }
-
-        // Function to populate the district dropdown
+        // Function to populate district dropdown
         function populateDistricts(data) {
-            const districts = [...new Set(data.map(row => row[3]))]; // Extract unique districts
+            const districts = [...new Set(data.map(row => row[3]))]; // Assuming column 3 contains district names
             const districtSelect = document.getElementById('district');
             districts.forEach(district => {
                 const option = document.createElement('option');
@@ -253,6 +294,22 @@
                 districtSelect.appendChild(option);
             });
         }
+
+        // Function to filter data based on selected district and field
+        function filterData() {
+            const selectedDistrict = document.getElementById('district').value;
+            const selectedField = document.getElementById('field').value;
+
+            // Filter data
+            const filteredData = studentData.filter(row => {
+                return (selectedDistrict === '' || row[3] === selectedDistrict) && 
+                       (selectedField === '' || row[4] === selectedField);
+            });
+
+            populateTable(filteredData); // Update table with filtered data
+            updateStatistics(filteredData, false); // Update statistics based on filtered data
+        }
     </script>
+
 </body>
 </html>
