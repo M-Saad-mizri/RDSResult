@@ -156,22 +156,70 @@
     </h3>
 
     <div class="container">
-<h1 style="font-size: 3em; font-weight: bold; color: #FF6347; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); text-align: center; padding: 20px;">Site Under Process</h1>
-<p style="font-size: 1.2em; color: #FF4500; text-align: center; font-style: italic;">Data may not be accurate.</p>
-<h2>Overall Statistics</h2>
-        <div id="statistics">
-            <p><strong>Total Students:</strong> <span id="totalStudents">0</span></p>
-            <p><strong>Pass:</strong> <span id="passCount">0</span></p>
-            <p><strong>Fail:</strong> <span id="failCount">0</span></p>
-            <p><strong>Total Females:</strong> <span id="Total-Females">0</span></p>
-            <p><strong>Fail Females:</strong> <span id="Pass-Females">0</span></p>
-        </div>
+
         <a href="overall Result final.xlsx" download="overall Result final.xlsx">
             <button id="downloadbtn" style="padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 Download Final Result (Excel)
             </button>
-        </a>
-        
+        </a> <hr>
+        <h3>Female Statistics</h3>
+        <p><strong>Total Females:</strong> <span id="Total-Females">0</span></p>
+        <p><strong>Fail Females:</strong></strong> <span id="Pass-Females">0</span></p>
+        <div class="search-container">
+            <label for="search">Search District:</label>
+            <input type="text" id="search" placeholder="Enter district name..." onkeyup="filterTable()">
+        </div>
+        <div style="height: 100px; overflow-y: auto; width: 100%; margin-top: 10px;">
+        <table id="districtTable">
+            <thead>
+                <tr>
+                    <th>District</th>
+                    <th>Total Females</th>
+                    <th>Fail Females</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Awaran</td><td>1</td><td>0</td></tr>
+                <tr><td>Barkhan</td><td>0</td><td>0</td></tr>
+                <tr><td>Chaghi</td><td>0</td><td>0</td></tr>
+                <tr><td>Chaman</td><td>2</td><td>1</td></tr>
+                <tr><td>Dera Bugti</td><td>0</td><td>0</td></tr>
+                <tr><td>GWADER</td><td>0</td><td>0</td></tr>
+                <tr><td>Harnai</td><td>0</td><td>0</td></tr>
+                <tr><td>HUB</td><td>2</td><td>1</td></tr>
+                <tr><td>Jaffarabad</td><td>0</td><td>0</td></tr>
+                <tr><td>Jhal Magsi</td><td>0</td><td>0</td></tr>
+                <tr><td>Kalat</td><td>2</td><td>2</td></tr>
+                <tr><td>Kachhi</td><td>2</td><td>0</td></tr>
+                <tr><td>Kech</td><td>1</td><td>0</td></tr>
+                <tr><td>Khuzdar</td><td>3</td><td>0</td></tr>
+                <tr><td>Killa Abdullah</td><td>0</td><td>0</td></tr>
+                <tr><td>Killa Saifullah</td><td>0</td><td>0</td></tr>
+                <tr><td>Kohlu</td><td>1</td><td>0</td></tr>
+                <tr><td>Lasbella</td><td>0</td><td>0</td></tr>
+                <tr><td>Loralai</td><td>0</td><td>0</td></tr>
+                <tr><td>Mastung</td><td>2</td><td>0</td></tr>
+                <tr><td>Musakhel</td><td>0</td><td>0</td></tr>
+                <tr><td>Naseerabad</td><td>1</td><td>0</td></tr>
+                <tr><td>Nushki</td><td>2</td><td>0</td></tr>
+                <tr><td>Panjgur</td><td>0</td><td>0</td></tr>
+                <tr><td>Pishin</td><td>0</td><td>0</td></tr>
+                <tr><td>Quetta</td><td>7</td><td>2</td></tr>
+                <tr><td>Sibi</td><td>0</td><td>0</td></tr>
+                <tr><td>Sohbatpur</td><td>0</td><td>0</td></tr>
+                <tr><td>Surab</td><td>1</td><td>1</td></tr>
+                <tr><td>Usta Muhammad</td><td>0</td><td>0</td></tr>
+                <tr><td>Washuk</td><td>0</td><td>0</td></tr>
+                <tr><td>Ziarat</td><td>1</td><td>0</td></tr>
+            </tbody>
+        </table>
+    </div> <hr>
+    <h3>Overall Statistics</h3>
+        <div id="statistics">
+            <p><strong>Total Students:</strong> <span id="totalStudents">0</span></p>
+            <p><strong>Pass:</strong> <span id="passCount">0</span></p>
+            <p><strong>Fail:</strong> <span id="failCount">0</span></p>
+        </div>
         <h3><img width="20" height="20" src="https://img.icons8.com/fluency/48/filter--v1.png" alt="filter--v1"/>District and Field</h3>
 
         <select style="margin-bottom: 10px;" id="district" onchange="filterData()">
@@ -193,9 +241,23 @@
                 <!-- Table will be dynamically populated -->
             </table>
         </div>
+
     </div>
 
     <script>
+        function filterTable() {
+            const searchInput = document.getElementById("search").value.toUpperCase();
+            const table = document.getElementById("districtTable");
+            const rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) {
+                const districtCell = rows[i].getElementsByTagName("td")[0];
+                if (districtCell) {
+                    const districtText = districtCell.textContent || districtCell.innerText;
+                    rows[i].style.display = districtText.toUpperCase().indexOf(searchInput) > -1 ? "" : "none";
+                }
+            }
+        }
         let studentData = []; // Store the fetched data
 
         // Fetch data on page load
@@ -249,41 +311,58 @@
 
         // Function to populate the table with API data
         function populateTable(data) {
-            const table = document.getElementById('resultTable');
-            table.innerHTML = ''; // Clear existing table data
+    const table = document.getElementById('resultTable');
+    table.innerHTML = ''; // Clear existing table data
 
-            // Add headers
-            const headers = `
-                <tr>
-                    <th>Name</th>
-                    <th>Father Name</th>
-                    <th>NIC</th>
-                    <th>District</th>
-                    <th>Field</th>
-                    <th>MCQs Marks</th>
-                    <th>Essay Marks</th>
-                    <th>Total Marks</th>
-                </tr>
-            `;
-            table.innerHTML = headers;
+    // Add headers without "Total Marks" but with a new "Status" column
+    const headers = `
+        <tr>
+            <th>Name</th>
+            <th>Father Name</th>
+            <th>NIC</th>
+            <th>District</th>
+            <th>Field</th>
+            <th>Status</th>
+        </tr>
+    `;
+    table.innerHTML = headers;
 
-            // Populate rows
-            data.forEach(row => {
-                const rowHTML = `
-                    <tr>
-                        <td>${row[0]}</td>
-                        <td>${row[1]}</td>
-                        <td>${row[2]}</td>
-                        <td>${row[3]}</td>
-                        <td>${row[4]}</td>
-                        <td>${row[5]}</td>
-                        <td>${row[6]}</td>
-                        <td>${row[7]}</td>
-                    </tr>
-                `;
-                table.innerHTML += rowHTML;
-            });
+    // Populate rows
+    data.forEach(row => {
+        // Calculate the total marks (MCQs + Essay)
+        const mcqMarks = row[5] || 0;  // Default to 0 if empty or undefined
+        const essayMarks = row[6] || 0; // Default to 0 if empty or undefined
+        const totalMarks = mcqMarks + essayMarks;
+
+        // Determine status based on the total marks
+        let status = '';
+        let rowColor = ''; // Default background color
+
+        if (totalMarks === 0 || mcqMarks === '' || essayMarks === '') {
+            status = 'Absent';
+            rowColor = 'lightgray'; // Light gray for absent students
+        } else if (totalMarks >= 50) {
+            status = 'Qualified';
+            rowColor = 'lightgreen'; // Green for qualified students
+        } else {
+            status = 'Not Qualified';
+            rowColor = 'lightcoral'; // Red for not qualified students
         }
+
+        const rowHTML = `
+            <tr style="background-color: ${rowColor};">
+                <td>${row[0]}</td>
+                <td>${row[1]}</td>
+                <td>${row[2]}</td>
+                <td>${row[3]}</td>
+                <td>${row[4]}</td>
+                <td>${status}</td>  <!-- Status -->
+            </tr>
+        `;
+        table.innerHTML += rowHTML;
+    });
+}
+
 
         // Function to populate district dropdown
         function populateDistricts(data) {
