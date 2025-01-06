@@ -46,7 +46,7 @@
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         table {
@@ -236,7 +236,7 @@
 
         <!-- Loader -->
         <div id="loader" class="spinner"></div>
-
+        <span>Search: </span><input type="text" id="searchInput" placeholder="Search by name or NIC" onkeyup="filterTable_main()" />
         <div class="table-container">
             <table id="resultTable" border="1" style="width: 100%; text-align: left;">
                 <!-- Table will be dynamically populated -->
@@ -362,6 +362,28 @@
         `;
         table.innerHTML += rowHTML;
     });
+}
+
+function filterTable_main() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById('resultTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+        const cells = rows[i].getElementsByTagName('td');
+        let match = false;
+
+        // Check if any cell contains the filter text
+        for (let j = 0; j < cells.length; j++) {
+            if (cells[j].innerText.toLowerCase().includes(filter)) {
+                match = true;
+                break;
+            }
+        }
+
+        rows[i].style.display = match ? '' : 'none'; // Show or hide row based on match
+    }
 }
 
 
