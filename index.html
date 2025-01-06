@@ -167,7 +167,7 @@
         <p><strong>Fail Females:</strong></strong> <span id="Pass-Females">0</span></p>
         <div class="search-container">
             <label for="search">Search District:</label>
-            <input type="text" id="search" placeholder="Enter district name..." onkeyup="filterTable()">
+            <input type="text" id="search" placeholder="Enter district name..." onkeyup=filterDistricts()">
         </div>
         <div style="height: 100px; overflow-y: auto; width: 100%; margin-top: 10px;">
         <table id="districtTable">
@@ -252,6 +252,28 @@
     </div>
 
     <script>
+function filterDistricts() {
+    // Get the filter input value
+    const filterValue = document.getElementById('filterInput').value.toLowerCase();
+    
+    // Get the table and its rows
+    const table = document.getElementById('districtTable');
+    const rows = table.getElementsByTagName('tr');
+
+    // Loop through table rows (start from index 1 to skip the header)
+    for (let i = 1; i < rows.length; i++) {
+        const districtCell = rows[i].getElementsByTagName('td')[0];
+        if (districtCell) {
+            // Check if the district matches the filter value
+            const districtText = districtCell.textContent || districtCell.innerText;
+            if (districtText.toLowerCase().indexOf(filterValue) > -1) {
+                rows[i].style.display = ''; // Show the row
+            } else {
+                rows[i].style.display = 'none'; // Hide the row
+            }
+        }
+    }
+}
 function filterTable() {
             const filterQualified = document.getElementById("filterQualified").checked;
             const filterNotQualified = document.getElementById("filterNotQualified").checked;
