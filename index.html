@@ -232,7 +232,13 @@
             <option value="IT">IT</option>
             <option value="Health">Health</option>
             <option value="Hospitality">Hospitality</option>
-        </select>
+        </select> <br>
+        <label>
+            <input type="checkbox" id="filterQualified" onchange="filterTable()" /> Qualified
+        </label>
+        <label>
+            <input type="checkbox" id="filterNotQualified" onchange="filterTable()" /> Not Qualified
+        </label>
 
         <!-- Loader -->
         <div id="loader" class="spinner"></div>
@@ -246,21 +252,38 @@
     </div>
 
     <script>
-        function filterTable() {
-            const searchInput = document.getElementById("search").value.toUpperCase();
-            const table = document.getElementById("districtTable");
+function filterTable() {
+            const filterQualified = document.getElementById("filterQualified").checked;
+            const filterNotQualified = document.getElementById("filterNotQualified").checked;
+            const table = document.getElementById("resultTable");
             const rows = table.getElementsByTagName("tr");
 
-            for (let i = 1; i < rows.length; i++) {
-                const districtCell = rows[i].getElementsByTagName("td")[0];
-                if (districtCell) {
-                    const districtText = districtCell.textContent || districtCell.innerText;
-                    rows[i].style.display = districtText.toUpperCase().indexOf(searchInput) > -1 ? "" : "none";
+            for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+                const statusCell = rows[i].getElementsByTagName("td")[5]; // Status is in the 5th column
+
+                if (statusCell) {
+                    const statusText = statusCell.textContent || statusCell.innerText;
+
+                    // Default: Show all rows if no filters are selected
+                    if (!filterQualified && !filterNotQualified) {
+                        rows[i].style.display = ""; // Show all rows
+                        continue; // Skip to the next row
+                    }
+
+                    // Apply filters
+                    let shouldShowRow = false;
+                    if (filterQualified && statusText === "Qualified") {
+                        shouldShowRow = true;
+                    }
+                    if (filterNotQualified && statusText === "Not Qualified") {
+                        shouldShowRow = true;
+                    }
+
+                    // Show or hide the row based on the filter
+                    rows[i].style.display = shouldShowRow ? "" : "none";
                 }
             }
         }
-        let studentData = []; // Store the fetched data
-
         // Fetch data on page load
         window.onload = function() {
             fetchData();
