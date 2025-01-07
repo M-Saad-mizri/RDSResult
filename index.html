@@ -166,9 +166,10 @@
         <p><strong>Total Females:</strong> <span id="Total-Females">0</span></p>
         <p><strong>Fail Females:</strong></strong> <span id="Pass-Females">0</span></p>
         <div class="search-container">
-            <label for="search">Search District:</label>
-            <input type="text" id="search" placeholder="Enter district name..." onkeyup=filterDistricts()">
+            <label for="filterInputdistric">Search District:</label>
+            <input type="text" id="filterInputdistric" placeholder="Enter district name..." onkeyup="filterDistricts()">
         </div>
+        
         <div style="height: 100px; overflow-y: auto; width: 100%; margin-top: 10px;">
         <table id="districtTable">
             <thead>
@@ -254,7 +255,7 @@
     <script>
 function filterDistricts() {
     // Get the filter input value
-    const filterValue = document.getElementById('filterInput').value.toLowerCase();
+    const filterValue = document.getElementById('filterInputdistric').value.toLowerCase();
     
     // Get the table and its rows
     const table = document.getElementById('districtTable');
