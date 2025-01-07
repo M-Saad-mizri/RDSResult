@@ -414,101 +414,152 @@ function filterTable() {
 
     // Function to download the table as a PDF
     async function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-        const table = document.getElementById('resultTable');
-        const headers = ['Name', 'Father Name', 'NIC', 'District', 'Field', 'Status'];
+    const table = document.getElementById('resultTable');
+    const headers = ['Name', 'Father Name', 'NIC', 'District', 'Field', 'Status'];
 
-        // Group rows by district
-        const districts = {};
-        for (let i = 1; i < table.rows.length; i++) {
-            const row = Array.from(table.rows[i].cells).map(cell => cell.textContent);
-            const district = row[3]; // District is the 4th column
+    // Group rows by district
+    const districts = {};
+    const allRows = [];
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = Array.from(table.rows[i].cells).map(cell => cell.textContent);
+        allRows.push(row);
+        const district = row[3]; // District is the 4th column
 
-            if (!districts[district]) {
-                districts[district] = [];
-            }
-            districts[district].push(row);
+        if (!districts[district]) {
+            districts[district] = [];
         }
-
-        // Iterate over districts to generate separate pages
-        Object.entries(districts).forEach(([district, rows], index) => {
-            if (index > 0) doc.addPage(); // Add a new page for each district after the first
-
-            // Calculate total students (including absent students)
-            const totalStudents = rows.length;
-
-            // Exclude absent students for pass/fail calculations
-            const filteredRows = rows.filter(row => row[5] !== 'Absent'); // Status is the 6th column
-
-            let totalPass = 0;
-            let totalFail = 0;
-
-            filteredRows.forEach(row => {
-                const status = row[5];
-                if (status === 'Qualified') totalPass++;
-                if (status === 'Not Qualified') totalFail++;
-            });
-
-            // Calculate field-wise Pass and Fail counts
-            const fieldCounts = {};
-            filteredRows.forEach(row => {
-                const field = row[4]; // Field is the 5th column
-                const status = row[5]; // Status is the 6th column
-
-                if (!fieldCounts[field]) {
-                    fieldCounts[field] = { Pass: 0, Fail: 0 };
-                }
-
-                if (status === 'Qualified') {
-                    fieldCounts[field].Pass++;
-                } else if (status === 'Not Qualified') {
-                    fieldCounts[field].Fail++;
-                }
-            });
-
-            // Add district name and counts at the top
-            doc.setFontSize(16);
-            doc.text(`District: ${district}`, 14, 20);
-
-            doc.setFontSize(12);
-            doc.text(`Total Students: ${totalStudents}`, 14, 30);
-            doc.text(`Total Pass: ${totalPass}`, 14, 40);
-            doc.text(`Total Fail: ${totalFail}`, 14, 50);
-
-            // Add the table for the current district
-            doc.autoTable({
-                startY: 60,
-                head: [headers],
-                body: rows,
-                styles: {
-                    fontSize: 10,
-                    cellPadding: 3,
-                    halign: 'center',
-                    valign: 'middle',
-                },
-                headStyles: { fillColor: [0, 102, 204] },
-            });
-
-            // Add field-wise Pass and Fail counts
-            let yOffset = doc.autoTable.previous.finalY + 10;
-            doc.setFontSize(12);
-            doc.text('Field-wise Pass and Fail Counts:', 14, yOffset);
-            yOffset += 10;
-
-            Object.entries(fieldCounts).forEach(([field, counts]) => {
-                doc.text(`${field}: Pass = ${counts.Pass}, Fail = ${counts.Fail}`, 14, yOffset);
-                yOffset += 10;
-            });
-        });
-
-        // Save the PDF
-        doc.save('Districts_Report.pdf');
+        districts[district].push(row);
     }
 
-    // Attach the event listener to the button
-    document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+    // Calculate overall statistics
+    const totalStudents = allRows.length;
+    const absentStudents = allRows.filter(row => row[5] === 'Absent').length; // Count absent students
+    const filteredRows = allRows.filter(row => row[5] !== 'Absent'); // Exclude absent students for pass/fail
+    let totalPass = 0;
+    let totalFail = 0;
+
+    filteredRows.forEach(row => {
+        const status = row[5]; // Status is the 6th column
+        if (status === 'Qualified') totalPass++;
+        if (status === 'Not Qualified') totalFail++;
+    });
+
+    // Calculate field-wise statistics
+    const fieldCounts = {};
+    filteredRows.forEach(row => {
+        const field = row[4]; // Field is the 5th column
+        const status = row[5]; // Status is the 6th column
+
+        if (!fieldCounts[field]) {
+            fieldCounts[field] = { Pass: 0, Fail: 0 };
+        }
+
+        if (status === 'Qualified') {
+            fieldCounts[field].Pass++;
+        } else if (status === 'Not Qualified') {
+            fieldCounts[field].Fail++;
+        }
+    });
+
+    // Add the overall summary page
+    doc.setFontSize(16);
+    doc.text('Overall Result Summary', 14, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Total Students: ${totalStudents}`, 14, 30);
+    doc.text(`Total Absent: ${absentStudents}`, 14, 40);
+    doc.text(`Total Pass: ${totalPass}`, 14, 50);
+    doc.text(`Total Fail: ${totalFail}`, 14, 60);
+
+    let yOffset = 70;
+    doc.text('Field-wise Pass and Fail Counts:', 14, yOffset);
+    yOffset += 10;
+
+    Object.entries(fieldCounts).forEach(([field, counts]) => {
+        doc.text(`${field}: Pass = ${counts.Pass}, Fail = ${counts.Fail}`, 14, yOffset);
+        yOffset += 10;
+    });
+
+    // Add district-wise pages
+    Object.entries(districts).forEach(([district, rows], index) => {
+        doc.addPage(); // Add a new page for each district
+
+        // Calculate total students and absent students for the district
+        const districtTotalStudents = rows.length;
+        const districtAbsentStudents = rows.filter(row => row[5] === 'Absent').length;
+        const districtFilteredRows = rows.filter(row => row[5] !== 'Absent'); // Exclude absent students
+
+        let districtTotalPass = 0;
+        let districtTotalFail = 0;
+
+        districtFilteredRows.forEach(row => {
+            const status = row[5];
+            if (status === 'Qualified') districtTotalPass++;
+            if (status === 'Not Qualified') districtTotalFail++;
+        });
+
+        // Calculate field-wise Pass and Fail counts for the district
+        const districtFieldCounts = {};
+        districtFilteredRows.forEach(row => {
+            const field = row[4]; // Field is the 5th column
+            const status = row[5]; // Status is the 6th column
+
+            if (!districtFieldCounts[field]) {
+                districtFieldCounts[field] = { Pass: 0, Fail: 0 };
+            }
+
+            if (status === 'Qualified') {
+                districtFieldCounts[field].Pass++;
+            } else if (status === 'Not Qualified') {
+                districtFieldCounts[field].Fail++;
+            }
+        });
+
+        // Add district name and counts at the top
+        doc.setFontSize(16);
+        doc.text(`District: ${district}`, 14, 20);
+
+        doc.setFontSize(12);
+        doc.text(`Total Students: ${districtTotalStudents}`, 14, 30);
+        doc.text(`Total Absent: ${districtAbsentStudents}`, 14, 40);
+        doc.text(`Total Pass: ${districtTotalPass}`, 14, 50);
+        doc.text(`Total Fail: ${districtTotalFail}`, 14, 60);
+
+        // Add the table for the current district
+        doc.autoTable({
+            startY: 70,
+            head: [headers],
+            body: rows,
+            styles: {
+                fontSize: 10,
+                cellPadding: 3,
+                halign: 'center',
+                valign: 'middle',
+            },
+            headStyles: { fillColor: [0, 102, 204] },
+        });
+
+        // Add field-wise Pass and Fail counts for the district
+        let districtYOffset = doc.autoTable.previous.finalY + 10;
+        doc.setFontSize(12);
+        doc.text('Field-wise Pass and Fail Counts:', 14, districtYOffset);
+        districtYOffset += 10;
+
+        Object.entries(districtFieldCounts).forEach(([field, counts]) => {
+            doc.text(`${field}: Pass = ${counts.Pass}, Fail = ${counts.Fail}`, 14, districtYOffset);
+            districtYOffset += 10;
+        });
+    });
+
+    // Save the PDF
+    doc.save('Districts_Report.pdf');
+}
+
+// Attach the event listener to the button
+document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
 function filterTable_main() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase();
