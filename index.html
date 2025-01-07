@@ -248,10 +248,12 @@
             <table id="resultTable" border="1" style="width: 100%; text-align: left;">
                 <!-- Table will be dynamically populated -->
             </table>
+            <button id="downloadPdfBtn">Download PDF</button>
         </div>
 
     </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script>
 function filterDistricts() {
     // Get the filter input value
@@ -357,59 +359,121 @@ function filterTable() {
         }
 
         // Function to populate the table with API data
-        function populateTable(data) {
-    const table = document.getElementById('resultTable');
-    table.innerHTML = ''; // Clear existing table data
 
-    // Add headers without "Total Marks" but with a new "Status" column
-    const headers = `
-        <tr>
-            <th>Name</th>
-            <th>Father Name</th>
-            <th>NIC</th>
-            <th>District</th>
-            <th>Field</th>
-            <th>Status</th>
-        </tr>
-    `;
-    table.innerHTML = headers;
+    // Populate Table Function
+    function populateTable(data) {
+        const table = document.getElementById('resultTable');
+        table.innerHTML = ''; // Clear existing table data
 
-    // Populate rows
-    data.forEach(row => {
-        // Calculate the total marks (MCQs + Essay)
-        const mcqMarks = row[5] || 0;  // Default to 0 if empty or undefined
-        const essayMarks = row[6] || 0; // Default to 0 if empty or undefined
-        const totalMarks = mcqMarks + essayMarks;
-
-        // Determine status based on the total marks
-        let status = '';
-        let rowColor = ''; // Default background color
-
-        if (totalMarks === 0 || mcqMarks === '' || essayMarks === '') {
-            status = 'Absent';
-            rowColor = 'lightgray'; // Light gray for absent students
-        } else if (totalMarks >= 50) {
-            status = 'Qualified';
-            rowColor = 'lightgreen'; // Green for qualified students
-        } else {
-            status = 'Not Qualified';
-            rowColor = 'lightcoral'; // Red for not qualified students
-        }
-
-        const rowHTML = `
-            <tr style="background-color: ${rowColor};">
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-                <td>${row[4]}</td>
-                <td>${status}</td>  <!-- Status -->
+        // Add headers without "Total Marks" but with a new "Status" column
+        const headers = `
+            <tr>
+                <th>Name</th>
+                <th>Father Name</th>
+                <th>NIC</th>
+                <th>District</th>
+                <th>Field</th>
+                <th>Status</th>
             </tr>
         `;
-        table.innerHTML += rowHTML;
-    });
-}
+        table.innerHTML = headers;
 
+        // Populate rows
+        data.forEach(row => {
+            const mcqMarks = row[5] || 0;
+            const essayMarks = row[6] || 0;
+            const totalMarks = mcqMarks + essayMarks;
+
+            let status = '';
+            let rowColor = '';
+
+            if (totalMarks === 0 || mcqMarks === '' || essayMarks === '') {
+                status = 'Absent';
+                rowColor = 'lightgray';
+            } else if (totalMarks >= 50) {
+                status = 'Qualified';
+                rowColor = 'lightgreen';
+            } else {
+                status = 'Not Qualified';
+                rowColor = 'lightcoral';
+            }
+
+            const rowHTML = `
+                <tr style="background-color: ${rowColor};">
+                    <td>${row[0]}</td>
+                    <td>${row[1]}</td>
+                    <td>${row[2]}</td>
+                    <td>${row[3]}</td>
+                    <td>${row[4]}</td>
+                    <td>${status}</td>
+                </tr>
+            `;
+            table.innerHTML += rowHTML;
+        });
+    }
+
+    // Function to download the table as a PDF
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Get table and district info
+        const table = document.getElementById('resultTable');
+        const districtName = table.rows[1]?.cells[3]?.textContent || 'N/A';
+
+        // Add district name at the top
+        doc.setFontSize(16);
+        doc.text(`District: ${districtName}`, 14, 20);
+
+        // Initialize counts for each field
+        const fieldCounts = { IT: 0, Hospitality: 0, Health: 0 };
+
+        // Prepare table data for autoTable
+        const headers = ['Name', 'Father Name', 'NIC', 'District', 'Field', 'Status'];
+        const tableData = [];
+        for (let i = 1; i < table.rows.length; i++) {
+            const row = table.rows[i];
+            const rowData = Array.from(row.cells).map(cell => cell.textContent);
+
+            // Count rows based on "Field" column
+            const field = rowData[4];
+            if (fieldCounts[field] !== undefined) fieldCounts[field]++;
+
+            tableData.push(rowData);
+        }
+
+        // Add the table to the PDF using autoTable
+        doc.autoTable({
+            startY: 30, // Start below the district name
+            head: [headers],
+            body: tableData,
+            styles: {
+                fontSize: 10,
+                cellPadding: 3,
+                halign: 'center', // Center align text
+                valign: 'middle',
+            },
+            headStyles: { fillColor: [0, 102, 204] }, // Blue header
+        });
+
+        // Add total counts by field
+        let yOffset = doc.autoTable.previous.finalY + 10;
+        doc.setFontSize(12);
+        doc.text('Total Counts:', 14, yOffset);
+        yOffset += 10;
+
+        Object.entries(fieldCounts).forEach(([field, count]) => {
+            doc.text(`${field}: ${count}`, 14, yOffset);
+            yOffset += 10;
+        });
+
+        // Save the PDF using the district name as the file name
+        const fileName = `District_${districtName.replace(/\s+/g, '_') || 'Unknown'}.pdf`;
+        doc.save(fileName);
+    }
+
+    // Attach the event listener to the button
+    document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
 function filterTable_main() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase();
