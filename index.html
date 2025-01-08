@@ -4,148 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skill Development Program</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
+<style>
+    /* *{border: 1px solid red;} style debug */
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f5f8;
+        color: #333;
+    }
 
+    h3 {
+        text-align: center;
+        font-size: 1.6em;
+        margin: 20px 0;
+        color: #444;
+        font-weight: 600;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    #statistics {
+        background-color: #f7f8fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    #statistics p {
+        margin: 10px 0;
+        font-size: 1.1em;
+        color: #555;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1em;
+    }
+
+    table th, table td {
+        padding: 14px;
+        border: 1px solid #ddd;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+        background-color: #f1f9e6;
+    }
+
+    /* Spinning loader animation */
+    #loader {
+        text-align: center;
+        visibility: hidden;
+        margin-top: 25px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    #loader.show {
+        visibility: visible;
+    }
+
+    .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #4CAF50;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 0 auto;
+    }
+    #districtTable{visibility: hidden;}
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    /* Footer Styles */
+#footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+/* Style the footer content */
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-content p {
+    margin: 5px 0;
+}
+
+.footer-content a {
+    margin: 0 10px;
+    display: inline-block;
+    color: #4CAF50; /* Green color for links */
+    text-decoration: none;
+}
+
+a:hover{text-decoration: underline;}
+
+
+    /* Media Queries for smaller devices */
+    @media (max-width: 768px) {
         h3 {
-            text-align: center;
-            font-size: 1.5em;
-            margin: 20px 0;
-            color: #333;
+            font-size: 1.4em;
         }
 
         .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 95%;
             padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        #statistics {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-        }
-
-        #statistics p {
-            margin: 5px 0;
-            font-size: 1em;
-            color: #555;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
         }
 
         table th, table td {
             padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
             font-size: 0.9em;
         }
 
-        table th {
-            background-color: #4CAF50;
-            color: white;
+        select {
+            width: 100%;
+            font-size: 1em;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h3 {
+            font-size: 1.2em;
         }
 
-        table tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .container {
+            width: 95%;
+            padding: 15px;
         }
 
-        table tr:hover {
-            background-color: #f1f1f1;
+        table th, table td {
+            padding: 10px;
+            font-size: 0.8em;
         }
 
-        /* Spinning loader animation */
-        #loader {
-            text-align: center;
-            visibility: hidden;
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
+        select {
+            width: 40%;
+            margin-right: 20px;
+            font-size: 0.95em;
+            margin-bottom: 10px;
         }
 
-        #loader.show {
-            visibility: visible;
+        #downloadbtn {
+            width: 100%;
         }
+    }
+</style>
 
-        .spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #4CAF50;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Media Queries for smaller devices */
-        @media (max-width: 768px) {
-            h3 {
-                font-size: 1.2em;
-            }
-
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-
-            table th, table td {
-                padding: 10px;
-                font-size: 0.85em;
-            }
-
-            select {
-                width: 95%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h3 {
-                font-size: 1em;
-            }
-
-            .container {
-                width: 90%;
-                padding: 10px;
-            }
-
-            table th, table td {
-                padding: 8px;
-                font-size: 0.75em;
-            }
-
-            select {
-                width: 95%;
-                font-size: 0.9em;
-            }
-
-            #downloadbtn {width: 95%;}
-        }
-    </style>
 </head>
 <body>
 
@@ -163,14 +211,14 @@
             </button>
         </a> <hr> -->
         <h3>Female Statistics</h3>
-        <p><strong>Total Females:</strong> <span id="Total-Females">0</span></p>
-        <p><strong>Fail Females:</strong></strong> <span id="Pass-Females">0</span></p>
-        <div class="search-container">
+        <span><strong>Total Females:</strong> <span id="Total-Females">0</span></span>
+        <span style="margin-left: 20px;"><strong>Fail Females:</strong></strong> <span id="Pass-Females">0</span>
+        <div style="margin-top: 10px;" class="search-container">
             <label for="filterInputdistric">Search District:</label>
             <input type="text" id="filterInputdistric" placeholder="Enter district name..." onkeyup="filterDistricts()">
         </div>
         
-        <div style="height: 100px; overflow-y: auto; width: 100%; margin-top: 10px;">
+        <div style="height: 120px; overflow-y: auto; width: 100%; margin-top: 10px;">
         <table id="districtTable">
             <thead>
                 <tr>
@@ -216,11 +264,13 @@
             </tbody>
         </table>
     </div> <hr>
+            <!-- Loader -->
+        <div id="loader" class="spinner"></div>
     <h3>Overall Statistics</h3>
         <div id="statistics">
-            <p><strong>Total Students:</strong> <span id="totalStudents">0</span></p>
-            <p><strong>Pass:</strong> <span id="passCount">0</span></p>
-            <p><strong>Fail:</strong> <span id="failCount">0</span></p>
+            <span><strong>Total Students:</strong> <span id="totalStudents">0</span></span>
+            <span style="margin: 0 20px 0 20px;"><strong>Pass:</strong> <span id="passCount">0</span></span>
+            <span><strong>Fail:</strong> <span id="failCount">0</span></span>
         </div>
         <h3><img width="20" height="20" src="https://img.icons8.com/fluency/48/filter--v1.png" alt="filter--v1"/>District and Field</h3>
 
@@ -235,23 +285,30 @@
             <option value="Hospitality">Hospitality</option>
         </select> <br>
         <label>
-            <input type="checkbox" id="filterQualified" onchange="filterTable()" /> Qualified
+            <input type="checkbox" id="filterQualified" onchange="filterData()" /> Qualified
         </label>
         <label>
-            <input type="checkbox" id="filterNotQualified" onchange="filterTable()" /> Not Qualified
+            <input type="checkbox" id="filterNotQualified" onchange="filterData()" /> Not Qualified
         </label>
 
-        <!-- Loader -->
-        <div id="loader" class="spinner"></div>
         <span>Search: </span><input type="text" id="searchInput" placeholder="Search by name or NIC" onkeyup="filterTable_main()" />
+        <button style="margin-left: 10px;" id="downloadPdfBtn1">Download PDF</button>
         <div class="table-container">
             <table id="resultTable" border="1" style="width: 100%; text-align: left;">
                 <!-- Table will be dynamically populated -->
             </table>
-            <button style="margin-top: 10px;" id="downloadPdfBtn">Download PDF</button>
+            <button style="margin-top: 10px; margin-bottom: 30px;" id="downloadPdfBtn">Download PDF</button>
         </div>
 
     </div>
+<!-- Footer -->
+<footer id="footer">
+    <div class="footer-content">
+        <p>Developed By<a target="_blank" href="https://m-saad.netlify.app/"><strong>M Saad</strong></a></p>
+    </div>
+</footer>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script>
@@ -277,39 +334,7 @@ function filterDistricts() {
         }
     }
 }
-function filterTable() {
-            const filterQualified = document.getElementById("filterQualified").checked;
-            const filterNotQualified = document.getElementById("filterNotQualified").checked;
-            const table = document.getElementById("resultTable");
-            const rows = table.getElementsByTagName("tr");
-
-            for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
-                const statusCell = rows[i].getElementsByTagName("td")[5]; // Status is in the 5th column
-
-                if (statusCell) {
-                    const statusText = statusCell.textContent || statusCell.innerText;
-
-                    // Default: Show all rows if no filters are selected
-                    if (!filterQualified && !filterNotQualified) {
-                        rows[i].style.display = ""; // Show all rows
-                        continue; // Skip to the next row
-                    }
-
-                    // Apply filters
-                    let shouldShowRow = false;
-                    if (filterQualified && statusText === "Qualified") {
-                        shouldShowRow = true;
-                    }
-                    if (filterNotQualified && statusText === "Not Qualified") {
-                        shouldShowRow = true;
-                    }
-
-                    // Show or hide the row based on the filter
-                    rows[i].style.display = shouldShowRow ? "" : "none";
-                }
-            }
-        }
-        // Fetch data on page load
+       // Fetch data on page load
         window.onload = function() {
             fetchData();
         };
@@ -327,6 +352,7 @@ function filterTable() {
                     updateStatistics(studentData); // Update overall statistics
                     populateDistricts(studentData); // Populate district dropdown
                     document.getElementById('loader').classList.remove('show'); // Hide loader
+                    document.getElementById("districtTable").style.visibility = "visible"
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
@@ -358,8 +384,6 @@ function filterTable() {
             }
         }
 
-        // Function to populate the table with API data
-
     // Populate Table Function
     function populateTable(data) {
         const table = document.getElementById('resultTable');
@@ -374,12 +398,14 @@ function filterTable() {
                 <th>District</th>
                 <th>Field</th>
                 <th>Status</th>
-            </tr>
-        `;
-        table.innerHTML = headers;
-
-        // Populate rows
-        data.forEach(row => {
+                </tr>
+                `;
+                table.innerHTML = headers;
+                
+                let rowCount =  0;
+                // Populate rows
+                data.forEach(row => {
+                    rowCount++;
             const mcqMarks = row[5] || 0;
             const essayMarks = row[6] || 0;
             const totalMarks = mcqMarks + essayMarks;
@@ -394,13 +420,12 @@ function filterTable() {
                 status = 'Qualified';
                 rowColor = 'lightgreen';
             } else {
-                status = 'Not Qualified';
+                status = `${totalMarks} Not Qualified`;
                 rowColor = 'lightcoral';
             }
-
             const rowHTML = `
                 <tr style="background-color: ${rowColor};">
-                    <td>${row[0]}</td>
+                    <td>${rowCount} ${row[0]}</td>
                     <td>${row[1]}</td>
                     <td>${row[2]}</td>
                     <td>${row[3]}</td>
@@ -450,7 +475,7 @@ function filterTable() {
         districtFilteredRows.forEach(row => {
             const status = row[5];
             if (status === 'Qualified') districtTotalPass++;
-            if (status === 'Not Qualified') districtTotalFail++;
+            if (status.includes("Not Qualified")) districtTotalFail++;
         });
 
         // Add district summary
@@ -468,7 +493,7 @@ function filterTable() {
             fieldSummary[field].Total++;
             if (status === 'Absent') fieldSummary[field].Absent++;
             else if (status === 'Qualified') fieldSummary[field].Pass++;
-            else if (status === 'Not Qualified') fieldSummary[field].Fail++;
+            else if (status.includes("Not Qualified")) fieldSummary[field].Fail++;
         });
     });
 
@@ -534,7 +559,7 @@ function filterTable() {
         districtFilteredRows.forEach(row => {
             const status = row[5];
             if (status === 'Qualified') districtTotalPass++;
-            if (status === 'Not Qualified') districtTotalFail++;
+            if (status.includes("Not Qualified")) districtTotalFail++;
         });
 
         // Add district name and counts at the top
@@ -573,7 +598,7 @@ function filterTable() {
 
             if (status === 'Qualified') {
                 fieldCounts[field].Pass++;
-            } else if (status === 'Not Qualified') {
+            } else if (status.includes("Not Qualified")) {
                 fieldCounts[field].Fail++;
             }
         });
@@ -595,26 +620,53 @@ function filterTable() {
 
 // Attach the event listener to the button
 document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+document.getElementById('downloadPdfBtn1').addEventListener('click', downloadPDF);
 
 function filterTable_main() {
+     // Get the values from the filter checkboxes
+    const filterQualified = document.getElementById("filterQualified").checked;
+    const filterNotQualified = document.getElementById("filterNotQualified").checked;
+
+    // Get the search input value
     const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase();
+    const filterText = input.value.toLowerCase();
+
     const table = document.getElementById('resultTable');
     const rows = table.getElementsByTagName('tr');
 
-    for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
-        const cells = rows[i].getElementsByTagName('td');
-        let match = false;
+    // Loop through each row starting from index 1 to skip the header
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td');
+        const statusCell = cells[5]; // Assuming Status is in the 6th column (index 5)
+        
+        // Get status text for filter-based check
+        let statusText = statusCell ? (statusCell.textContent || statusCell.innerText) : '';
 
-        // Check if any cell contains the filter text
-        for (let j = 0; j < cells.length; j++) {
-            if (cells[j].innerText.toLowerCase().includes(filter)) {
-                match = true;
-                break;
-            }
+        let shouldShowRow = true;
+
+        // Apply the status-based filters (Qualified/Not Qualified)
+        if (filterQualified && statusText !== "Qualified") {
+            shouldShowRow = false;
+        }
+        if (filterNotQualified && !statusText.includes("Not Qualified")) {
+            shouldShowRow = false;
         }
 
-        rows[i].style.display = match ? '' : 'none'; // Show or hide row based on match
+        // Apply the search filter (match any cell)
+        if (shouldShowRow) {
+            let match = false;
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].innerText.toLowerCase().includes(filterText)) {
+                    match = true;
+                    break;
+                }
+            }
+            shouldShowRow = match; // If a match is found in any cell, the row should be shown
+        }
+
+        // Show or hide the row based on both filters
+        row.style.display = shouldShowRow ? '' : 'none';
     }
 }
 
@@ -632,20 +684,45 @@ function filterTable_main() {
         }
 
         // Function to filter data based on selected district and field
-        function filterData() {
-            const selectedDistrict = document.getElementById('district').value;
-            const selectedField = document.getElementById('field').value;
+function filterData() {
+    // Get the selected district and field values
+    const selectedDistrict = document.getElementById('district').value;
+    const selectedField = document.getElementById('field').value;
 
-            // Filter data
-            const filteredData = studentData.filter(row => {
-                return (selectedDistrict === '' || row[3] === selectedDistrict) && 
-                       (selectedField === '' || row[4] === selectedField);
-            });
+    // Get the status filter values (Qualified / Not Qualified)
+    const filterQualified = document.getElementById("filterQualified").checked;
+    const filterNotQualified = document.getElementById("filterNotQualified").checked;
 
-            populateTable(filteredData); // Update table with filtered data
-            updateStatistics(filteredData, false); // Update statistics based on filtered data
+    // Filter the student data by district and field
+    const filteredData = studentData.filter(row => {
+        const matchesDistrict = selectedDistrict === '' || row[3] === selectedDistrict;
+        const matchesField = selectedField === '' || row[4] === selectedField;
+
+        // Apply the status filter after district and field filters
+        let matchesStatus = true;
+        const mcqMarks = row[5] || 0;
+        const essayMarks = row[6] || 0;
+        const totalMarks = mcqMarks + essayMarks;
+        const statusText = totalMarks >= 50 ? "Qualified" : `${totalMarks} Not Qualified`;
+
+        if (filterQualified && statusText !== "Qualified") {
+            matchesStatus = false;
         }
-    </script>
+
+        if (filterNotQualified && !statusText.includes("Not Qualified")) {
+            matchesStatus = false;
+        }
+
+        return matchesDistrict && matchesField && matchesStatus;
+    });
+
+    // Populate the table with the filtered data
+    populateTable(filteredData);
+
+    // Update the statistics based on the filtered data
+    updateStatistics(filteredData, false); // false indicates it's filtered data
+}
+  </script>
 
 </body>
 </html>
