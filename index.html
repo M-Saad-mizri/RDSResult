@@ -290,7 +290,7 @@ a:hover{text-decoration: underline;}
         <label>
             <input style="margin-bottom: 10px;" type="checkbox" id="filterNotQualified" onchange="filterData()" /> Not Qualified
         </label>
-<br>
+
         <span>Search: </span><input type="text" id="searchInput" placeholder="Search by name or NIC" onkeyup="filterTable_main()" />
         <button style="margin-left: 10px;" id="downloadPdfBtn1">Download PDF</button>
         <div class="table-container">
@@ -385,57 +385,66 @@ function filterDistricts() {
         }
 
     // Populate Table Function
-    function populateTable(data) {
-        const table = document.getElementById('resultTable');
-        table.innerHTML = ''; // Clear existing table data
+function populateTable(data) {
+    const table = document.getElementById('resultTable');
+    table.innerHTML = ''; // Clear existing table data
 
-        // Add headers without "Total Marks" but with a new "Status" column
-        const headers = `
-            <tr>
-                <th>Name</th>
-                <th>Father Name</th>
-                <th>NIC</th>
-                <th>District</th>
-                <th>Field</th>
-                <th>Status</th>
-                </tr>
-                `;
-                table.innerHTML = headers;
-                
-                let rowCount =  0;
-                // Populate rows
-                data.forEach(row => {
-                    rowCount++;
-            const mcqMarks = row[5] || 0;
-            const essayMarks = row[6] || 0;
-            const totalMarks = mcqMarks + essayMarks;
+    // Add headers with "Status" column
+    const headers = `
+        <tr>
+            <th>Name</th>
+            <th>Father Name</th>
+            <th>NIC</th>
+            <th>District</th>
+            <th>Field</th>
+            <th>Status</th>
+        </tr>
+    `;
+    table.innerHTML = headers;
 
-            let status = '';
-            let rowColor = '';
+    let rowCount = 0;
+    // Populate rows with calculated status
+    data.forEach((row, index) => {
+        rowCount++;
 
-            if (totalMarks === 0 || mcqMarks === '' || essayMarks === '') {
-                status = 'Absent';
-                rowColor = 'lightgray';
-            } else if (totalMarks >= 50) {
-                status = 'Qualified';
-                rowColor = 'lightgreen';
-            } else {
-                status = `${totalMarks} Not Qualified`;
-                rowColor = 'lightcoral';
-            }
-            const rowHTML = `
-                <tr style="background-color: ${rowColor};">
-                    <td>${rowCount} ${row[0]}</td>
-                    <td>${row[1]}</td>
-                    <td>${row[2]}</td>
-                    <td>${row[3]}</td>
-                    <td>${row[4]}</td>
-                    <td>${status}</td>
-                </tr>
-            `;
-            table.innerHTML += rowHTML;
-        });
-    }
+        const mcqMarks = row[5] || 0;
+        const essayMarks = row[6] || 0;
+        const totalMarks = mcqMarks + essayMarks;
+
+        let status = '';
+        if (totalMarks === 0 || mcqMarks === '' || essayMarks === '') {
+            status = 'Absent';
+        } else if (totalMarks >= 50) {
+            status = 'Qualified';
+        } else {
+            status = `${totalMarks} Not Qualified`;
+        }
+
+        // Add status to the row (for filtering later)
+        row.status = status;
+
+        let rowColor = '';
+        if (status === 'Absent') {
+            rowColor = 'lightgray';
+        } else if (status === 'Qualified') {
+            rowColor = 'lightgreen';
+        } else {
+            rowColor = 'lightcoral';
+        }
+
+        const rowHTML = `
+            <tr style="background-color: ${rowColor};">
+                <td>${rowCount} ${row[0]}</td>
+                <td>${row[1]}</td>
+                <td>${row[2]}</td>
+                <td>${row[3]}</td>
+                <td>${row[4]}</td>
+                <td>${status}</td>
+            </tr>
+        `;
+        table.innerHTML += rowHTML;
+    });
+}
 
     // Function to download the table as a PDF
     async function downloadPDF() {
@@ -689,27 +698,28 @@ function filterData() {
     const selectedDistrict = document.getElementById('district').value;
     const selectedField = document.getElementById('field').value;
 
-    // Get the status filter values (Qualified / Not Qualified)
+    // Get the status filter values (Qualified / Not Qualified / Absent)
     const filterQualified = document.getElementById("filterQualified").checked;
     const filterNotQualified = document.getElementById("filterNotQualified").checked;
+    const filterAbsent = document.getElementById("filterAbsent").checked; // Add Absent filter
 
-    // Filter the student data by district and field
+    // Filter the student data by district, field, and status
     const filteredData = studentData.filter(row => {
         const matchesDistrict = selectedDistrict === '' || row[3] === selectedDistrict;
         const matchesField = selectedField === '' || row[4] === selectedField;
 
-        // Apply the status filter after district and field filters
         let matchesStatus = true;
-        const mcqMarks = row[5] || 0;
-        const essayMarks = row[6] || 0;
-        const totalMarks = mcqMarks + essayMarks;
-        const statusText = totalMarks >= 50 ? "Qualified" : `${totalMarks} Not Qualified`;
 
-        if (filterQualified && statusText !== "Qualified") {
+        // Apply the status filter based on selected filters
+        if (filterQualified && row.status !== 'Qualified') {
             matchesStatus = false;
         }
 
-        if (filterNotQualified && !statusText.includes("Not Qualified")) {
+        if (filterNotQualified && !row.status.includes('Not Qualified')) {
+            matchesStatus = false;
+        }
+
+        if (filterAbsent && row.status !== 'Absent') {
             matchesStatus = false;
         }
 
@@ -722,6 +732,7 @@ function filterData() {
     // Update the statistics based on the filtered data
     updateStatistics(filteredData, false); // false indicates it's filtered data
 }
+
   </script>
 
 </body>
