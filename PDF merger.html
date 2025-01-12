@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Merger</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Ensure the body takes at least full viewport height */
+      }
+      .container {
+        flex: 1; /* Allow container to grow and fill space */
+        width: 80%;
+        margin: 0 auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px;
+      }
+      input[type="file"] {
+        margin-bottom: 20px;
+      }
+      #merge-btn {
+        padding: 10px 20px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #merge-btn:disabled {
+        background: #ccc;
+      }
+      #footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 14px;
+        z-index: 1000;
+      }
+
+      /* Style the footer content */
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 10px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .footer-content p {
+        margin: 5px 0;
+      }
+
+      .footer-content a {
+        margin: 0 10px;
+        display: inline-block;
+        color: #4caf50; /* Green color for links */
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>PDF Merger</h1>
+
+      <!-- Step 1: Upload PDF Files -->
+      <div id="upload-section">
+        <h2>Step 1: Upload PDF Files</h2>
+        <label for="pdf1-upload">Select File 1:</label>
+        <input type="file" id="pdf1-upload" accept="application/pdf" />
+        <p id="file1-info">No file selected.</p>
+
+        <label for="pdf2-upload">Select File 2:</label>
+        <input type="file" id="pdf2-upload" accept="application/pdf" />
+        <p id="file2-info">No file selected.</p>
+      </div>
+
+      <!-- Step 2: Merge PDFs -->
+      <div id="merge-section">
+        <h2>Step 2: Merge and Download</h2>
+        <button id="merge-btn" disabled>Merge PDFs</button>
+        <p id="status"></p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+      <div class="footer-content">
+        <p>
+          Developed By<a target="_blank" href="https://m-saad.netlify.app/"
+            ><strong>M Saad</strong></a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script>
+      let file1, file2;
+
+      // Handle file selection for File 1
+      document
+        .getElementById("pdf1-upload")
+        .addEventListener("change", (event) => {
+          file1 = event.target.files[0];
+          document.getElementById("file1-info").textContent = file1
+            ? `File 1: ${file1.name}`
+            : "No file selected.";
+          updateMergeButtonState(); // Ensure button state is updated after file selection
+        });
+
+      // Handle file selection for File 2
+      document
+        .getElementById("pdf2-upload")
+        .addEventListener("change", (event) => {
+          file2 = event.target.files[0];
+          document.getElementById("file2-info").textContent = file2
+            ? `File 2: ${file2.name}`
+            : "No file selected.";
+          updateMergeButtonState(); // Ensure button state is updated after file selection
+        });
+
+      // Enable the merge button only if both files are selected
+      function updateMergeButtonState() {
+        // If both file1 and file2 are selected, enable the merge button
+        const mergeButton = document.getElementById("merge-btn");
+        if (file1 && file2) {
+          mergeButton.disabled = false;
+        } else {
+          mergeButton.disabled = true;
+        }
+      }
+
+      // Merge the selected PDF files
+      document
+        .getElementById("merge-btn")
+        .addEventListener("click", async () => {
+          if (!file1 || !file2) {
+            document.getElementById("status").textContent =
+              "Please upload both PDF files.";
+            return;
+          }
+
+          const pdfDocs = [];
+          let mergedFileName = "merged.pdf"; // Default merged file name
+
+          // Use the first file's name as the merged file name (remove its extension)
+          mergedFileName = `${file1.name.replace(/\.[^/.]+$/, "")}_merged.pdf`;
+
+          // Load the first PDF
+          const arrayBuffer1 = await file1.arrayBuffer();
+          const pdfDoc1 = await PDFLib.PDFDocument.load(arrayBuffer1);
+          pdfDocs.push(pdfDoc1);
+
+          // Load the second PDF
+          const arrayBuffer2 = await file2.arrayBuffer();
+          const pdfDoc2 = await PDFLib.PDFDocument.load(arrayBuffer2);
+          pdfDocs.push(pdfDoc2);
+
+          // Create a new PDF document to merge the files
+          const mergedPdf = await PDFLib.PDFDocument.create();
+
+          // Copy all pages from both PDFs into the merged PDF
+          for (const pdfDoc of pdfDocs) {
+            const copiedPages = await mergedPdf.copyPages(
+              pdfDoc,
+              pdfDoc.getPages().map((_, index) => index)
+            );
+            copiedPages.forEach((page) => mergedPdf.addPage(page));
+          }
+
+          // Save the merged PDF
+          const mergedPdfBytes = await mergedPdf.save();
+
+          // Trigger the download
+          const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = mergedFileName;
+          link.click();
+
+          // Update the status message
+          document.getElementById(
+            "status"
+          ).textContent = `PDFs merged successfully. File name: ${mergedFileName}`;
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Form PDF Response Splitter</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f7fa;
+        margin: 0;
+        padding: 30px;
+        text-align: center;
+        color: #333;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      #upload-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 40px 30px;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      input[type="file"] {
+        margin-bottom: 25px;
+        padding: 10px;
+        border: 2px solid #007bff;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      input[type="file"]:hover {
+        border-color: #0056b3;
+      }
+
+      button {
+        padding: 12px 25px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      #status {
+        margin-top: 30px;
+        color: #555;
+        font-weight: 500;
+      }
+      #heading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      #footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 14px;
+        z-index: 1000;
+      }
+
+      /* Style the footer content */
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 10px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .footer-content p {
+        margin: 5px 0;
+      }
+
+      .footer-content a {
+        margin: 0 10px;
+        display: inline-block;
+        color: #4caf50; /* Green color for links */
+        text-decoration: none;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+          margin-bottom: 15px;
+        }
+
+        #upload-section {
+          padding: 30px 20px;
+          max-width: 90%;
+        }
+
+        input[type="file"] {
+          margin-bottom: 15px;
+          width: 100%;
+          font-size: 0.9rem;
+        }
+
+        button {
+          padding: 10px 20px;
+          font-size: 1rem;
+          width: 100%;
+        }
+
+        #status {
+          margin-top: 20px;
+        }
+        #heading {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 10px;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="heading">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        x="0px"
+        y="0px"
+        width="50"
+        height="50"
+        viewBox="0 0 48 48"
+      >
+        <path
+          fill="#43a047"
+          d="M37,45H11c-1.657,0-3-1.343-3-3V6c0-1.657,1.343-3,3-3h19l10,10v29C40,43.657,38.657,45,37,45z"
+        ></path>
+        <path fill="#c8e6c9" d="M40 13L30 13 30 3z"></path>
+        <path fill="#2e7d32" d="M30 13L40 23 40 13z"></path>
+        <path
+          fill="#e8f5e9"
+          d="M19 23H33V25H19zM19 28H33V30H19zM19 33H33V35H19zM15 23H17V25H15zM15 28H17V30H15zM15 33H17V35H15z"
+        ></path>
+      </svg>
+      <h1>Google Form PDF Response Splitter</h1>
+    </div>
+    <div id="upload-section">
+      <input type="file" id="pdf-upload" accept="application/pdf" />
+      <button id="extract-text">Start Processing</button>
+    </div>
+    <div id="status"></div>
+
+    <!-- Footer -->
+    <footer id="footer">
+      <div class="footer-content">
+        <p>
+          Developed By<a target="_blank" href="https://m-saad.netlify.app/"
+            ><strong>M Saad</strong></a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+      document
+        .getElementById("extract-text")
+        .addEventListener("click", async () => {
+          const fileInput = document.getElementById("pdf-upload");
+          const statusDiv = document.getElementById("status");
+          const endLine =
+            "This content is neither created nor endorsed by Google.";
+
+          // Updated Regex to handle both NIC formats
+          const nameRegex =
+            /[0-9]+\/[0-9]+\s+([\w\s]+)\s+([0-9]{5}-[0-9]{7}-[0-9]|[0-9]{13})/;
+
+          if (!fileInput.files.length) {
+            alert("Please upload a PDF file first.");
+            return;
+          }
+
+          const file = fileInput.files[0];
+          const fileReader = new FileReader();
+
+          fileReader.onload = async function () {
+            const typedArray = new Uint8Array(this.result);
+
+            try {
+              const pdf = await pdfjsLib.getDocument(typedArray).promise;
+              const pdfBytes = typedArray.buffer; // Original PDF bytes for splitting
+              const zip = new JSZip(); // Initialize a ZIP object
+              let responses = [];
+              let currentResponse = "";
+              let currentStartPage = 1;
+
+              statusDiv.textContent = "Extracting text from PDF...";
+
+              // Loop through each page to extract responses
+              for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items
+                  .map((item) => item.str)
+                  .join(" ");
+
+                if (pageText.includes(endLine)) {
+                  currentResponse += pageText;
+                  responses.push({
+                    text: currentResponse,
+                    startPage: currentStartPage,
+                    endPage: i,
+                  });
+                  currentResponse = "";
+                  currentStartPage = i + 1;
+                } else {
+                  currentResponse += pageText;
+                }
+              }
+
+              if (currentResponse.trim()) {
+                responses.push({
+                  text: currentResponse,
+                  startPage: currentStartPage,
+                  endPage: pdf.numPages,
+                });
+              }
+
+              statusDiv.textContent = `Found ${responses.length} responses. Splitting responses...`;
+
+              // Split and add individual PDFs to ZIP
+              for (const [index, response] of responses.entries()) {
+                statusDiv.textContent = `Splitting response ${index + 1} of ${
+                  responses.length
+                }...`;
+
+                const match = response.text.match(nameRegex);
+                const responseName = match
+                  ? match[1].trim()
+                  : `Response_${index + 1}`; // Extract the sender's name
+                const nic = match ? match[2] : "Unknown NIC"; // Extract the NIC for debugging/logging purposes
+                console.log(
+                  `Processing response from: ${responseName}, NIC: ${nic}`
+                );
+
+                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+
+                const newPdf = await PDFLib.PDFDocument.create();
+                for (
+                  let pageIndex = response.startPage - 1;
+                  pageIndex < response.endPage;
+                  pageIndex++
+                ) {
+                  const [copiedPage] = await newPdf.copyPages(pdfDoc, [
+                    pageIndex,
+                  ]);
+                  newPdf.addPage(copiedPage);
+                }
+
+                const pdfBytesResponse = await newPdf.save();
+                zip.file(`${responseName}.pdf`, pdfBytesResponse); // Add to ZIP
+              }
+
+              statusDiv.textContent = "Adding responses to ZIP file...";
+
+              // Generate and download the ZIP file
+              zip.generateAsync({ type: "blob" }).then((content) => {
+                saveAs(content, "Responses.zip");
+                statusDiv.textContent =
+                  "Download complete! All responses are in the ZIP file.";
+              });
+            } catch (error) {
+              console.error("Error processing the PDF:", error);
+              alert("An error occurred while processing the PDF.");
+              statusDiv.textContent = "";
+            }
+          };
+
+          fileReader.readAsArrayBuffer(file);
+        });
+    </script>
+  </body>
+</html>
