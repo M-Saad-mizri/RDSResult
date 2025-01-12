@@ -34,7 +34,12 @@
         max-width: 400px;
         margin: 0 auto;
       }
-
+      #btndiv {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
       input[type="file"] {
         margin-bottom: 25px;
         padding: 10px;
@@ -133,6 +138,13 @@
           font-size: 1rem;
           width: 100%;
         }
+        #btndiv {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          flex-direction: column;
+        }
 
         #status {
           margin-top: 20px;
@@ -172,9 +184,19 @@
     </div>
     <div id="upload-section">
       <input type="file" id="pdf-upload" accept="application/pdf" />
-      <button id="extract-text">Start Processing</button>
+      <div id="btndiv">
+        <button id="extract-text">Start Processing</button
+        ><button
+          style="background-color: rgb(251, 63, 63)"
+          id="stop-button"
+          disabled
+        >
+          Stop
+        </button>
+      </div>
     </div>
     <div id="status"></div>
+    <div style="margin-top: 20px" id="info"></div>
 
     <!-- Footer -->
     <footer id="footer">
@@ -195,12 +217,13 @@
       document
         .getElementById("extract-text")
         .addEventListener("click", async () => {
+          const extractButton = document.getElementById("extract-text");
+          const stopButton = document.getElementById("stop-button");
           const fileInput = document.getElementById("pdf-upload");
           const statusDiv = document.getElementById("status");
           const endLine =
             "This content is neither created nor endorsed by Google.";
 
-          // Updated Regex to handle both NIC formats
           const nameRegex =
             /[0-9]+\/[0-9]+\s+([\w\s]+)\s+([0-9]{5}-[0-9]{7}-[0-9]|[0-9]{13})/;
 
@@ -212,21 +235,37 @@
           const file = fileInput.files[0];
           const fileReader = new FileReader();
 
+          extractButton.disabled = true; // Disable the "Extract Text" button
+          stopButton.disabled = false; // Enable the "Stop" button
+
+          let isProcessingStopped = false;
+          let startTime = Date.now();
+          let timeTakenForFirstTwoResponses = 0;
+          let totalResponses = 0;
+
+          stopButton.addEventListener("click", () => {
+            isProcessingStopped = true;
+            statusDiv.textContent = "Processing stopped.";
+            stopButton.disabled = true; // Disable "Stop" button after stopping
+            extractButton.disabled = false; // Re-enable "Extract Text" button
+          });
+
           fileReader.onload = async function () {
             const typedArray = new Uint8Array(this.result);
 
             try {
               const pdf = await pdfjsLib.getDocument(typedArray).promise;
-              const pdfBytes = typedArray.buffer; // Original PDF bytes for splitting
-              const zip = new JSZip(); // Initialize a ZIP object
+              const pdfBytes = typedArray.buffer;
+              const zip = new JSZip();
               let responses = [];
               let currentResponse = "";
               let currentStartPage = 1;
 
               statusDiv.textContent = "Extracting text from PDF...";
 
-              // Loop through each page to extract responses
               for (let i = 1; i <= pdf.numPages; i++) {
+                if (isProcessingStopped) break;
+
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items
@@ -255,26 +294,49 @@
                 });
               }
 
-              statusDiv.textContent = `Found ${responses.length} responses. Splitting responses...`;
+              totalResponses = responses.length;
+              statusDiv.textContent = `Found ${totalResponses} responses. Splitting responses...`;
 
-              // Split and add individual PDFs to ZIP
+              let responsesProcessed = 0;
+              let timeTakenForAllResponses = 0;
+              let estimatedTotalTime = 0;
+
               for (const [index, response] of responses.entries()) {
-                statusDiv.textContent = `Splitting response ${index + 1} of ${
-                  responses.length
-                }...`;
+                if (isProcessingStopped) break;
+
+                const currentTime = Date.now();
+                const timeForCurrentResponse = (currentTime - startTime) / 1000; // time for this response in seconds
+                timeTakenForAllResponses += timeForCurrentResponse;
+                startTime = currentTime;
+
+                responsesProcessed++;
+
+                // Estimate total time based on time taken for completed responses
+                const avgTimePerResponse =
+                  timeTakenForAllResponses / responsesProcessed;
+                estimatedTotalTime = avgTimePerResponse * totalResponses;
+
+                const remainingTime =
+                  estimatedTotalTime - timeTakenForAllResponses;
+                const remainingTimeFormatted = formatTime(remainingTime);
+
+                // Update status with estimated time remaining
+                statusDiv.textContent = `${remainingTimeFormatted} Processing response ${
+                  index + 1
+                } of ${totalResponses}.`;
 
                 const match = response.text.match(nameRegex);
                 const responseName = match
                   ? match[1].trim()
-                  : `Response_${index + 1}`; // Extract the sender's name
-                const nic = match ? match[2] : "Unknown NIC"; // Extract the NIC for debugging/logging purposes
-                console.log(
-                  `Processing response from: ${responseName}, NIC: ${nic}`
-                );
+                  : `Response_${index + 1}`;
+                const nic = match ? match[2] : "Unknown NIC";
+                document.getElementById(
+                  "info"
+                ).textContent = `${responseName}, ${nic}`;
 
                 const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-
                 const newPdf = await PDFLib.PDFDocument.create();
+
                 for (
                   let pageIndex = response.startPage - 1;
                   pageIndex < response.endPage;
@@ -287,25 +349,41 @@
                 }
 
                 const pdfBytesResponse = await newPdf.save();
-                zip.file(`${responseName}.pdf`, pdfBytesResponse); // Add to ZIP
+                zip.file(`${responseName}.pdf`, pdfBytesResponse);
               }
 
-              statusDiv.textContent = "Adding responses to ZIP file...";
+              if (isProcessingStopped) {
+                statusDiv.textContent = "Processing stopped.";
+                document.getElementById("info").textContent = "";
+              } else {
+                statusDiv.textContent = "Adding responses to ZIP file...";
 
-              // Generate and download the ZIP file
-              zip.generateAsync({ type: "blob" }).then((content) => {
-                saveAs(content, "Responses.zip");
-                statusDiv.textContent =
-                  "Download complete! All responses are in the ZIP file.";
-              });
+                zip.generateAsync({ type: "blob" }).then((content) => {
+                  saveAs(content, "Responses.zip");
+                  statusDiv.textContent =
+                    "Download complete! All responses are in the ZIP file.";
+                  document.getElementById("info").textContent = "";
+                });
+              }
             } catch (error) {
               console.error("Error processing the PDF:", error);
               alert("An error occurred while processing the PDF.");
               statusDiv.textContent = "";
+            } finally {
+              extractButton.disabled = false; // Enable "Extract Text" button again
+              stopButton.disabled = true; // Disable "Stop" button after processing is done
             }
           };
 
           fileReader.readAsArrayBuffer(file);
+
+          // Helper function to format the remaining time in a human-readable format
+          function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${hours}h ${minutes}m ${secs}s`;
+          }
         });
     </script>
   </body>
